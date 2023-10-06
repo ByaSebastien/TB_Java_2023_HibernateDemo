@@ -18,12 +18,18 @@ public class Main {
 
         User user1 = new User("Seb","Bya", LocalDate.now(), GenreType.HOMME,new Address("Rue cerisier numero 18",null));
         User user2 = new User("Alphonse","Brown", LocalDate.now(), GenreType.HOMME,new Address("Rue cerisier numero 18",null));
+//        User user4 = new User("Seb","Bya", LocalDate.now(), GenreType.HOMME,new Address("Rue cerisier numero 18",null));
 
         user1 = userRepo.Add(user1);
         user2 = userRepo.Add(user2);
+//        user4 = userRepo.Add(user4);
 
-        User user3 = new User(1L,"Hacking","Noob", LocalDate.now(), GenreType.HOMME, new Address("Rue cerisier numero 18",null));
-        userRepo.update(user3);
+        User user3 = new User("Hacking","Noob", LocalDate.now(), GenreType.HOMME, new Address("Rue cerisier numero 18",null));
+        userRepo.Add(user3);
+
+        List<User> results = userRepo.getUsersByFirstname("e");
+
+        results.forEach(System.out::println);
 
 //        User resultUser = userRepo.getOne(9L);
 //        System.out.println(resultUser);

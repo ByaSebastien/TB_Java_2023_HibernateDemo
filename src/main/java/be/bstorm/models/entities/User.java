@@ -7,7 +7,10 @@ import java.io.Serializable;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "USER_")
+@Table(name = "USER_",
+       uniqueConstraints = @UniqueConstraint(
+               name = "UK_USER__FIRST_NAME__LAST_NAME",
+               columnNames = {"FIRST_NAME","LAST_NAME"}))
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @ToString @EqualsAndHashCode
 public class User implements Serializable {
 

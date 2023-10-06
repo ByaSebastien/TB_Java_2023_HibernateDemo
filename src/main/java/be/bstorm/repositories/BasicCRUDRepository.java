@@ -9,65 +9,93 @@ import jakarta.persistence.TypedQuery;
 import java.util.List;
 
 public class BasicCRUDRepository {
+    private final EntityManagerFactory emf;
 
-    private final EntityManagerFactory emf = Persistence.createEntityManagerFactory("DemoJPA");
-    private final EntityManager em;
-
-    public BasicCRUDRepository(){
-        em = emf.createEntityManager();
+    public BasicCRUDRepository() {
+        emf = Persistence.createEntityManagerFactory("DemoJPA");
     }
 
-    public User Add(User user){
-        em.getTransaction().begin();
-
-        em.persist(user);
-
-        em.getTransaction().commit();
-
-        em.detach(user);
-
-        return user;
+    public EntityManager openConnection() {
+        return emf.createEntityManager();
     }
 
-    public User getOne(Long id){
-        return em.find(User.class,id);
-    }
+    public User Add(User user) {
 
-    public List<User> getAll(){
-        TypedQuery<User> query = em.createQuery("select u from User u", User.class);
-        return query.getResultList();
-    }
+        try (EntityManager em = openConnection()) {
 
-    public void update(User user){
-        em.getTransaction().begin();
-        em.merge(user);
-        em.getTransaction().commit();
-    }
+            em.getTransaction().begin();
 
-    public void update(Long id, User user){
-        em.getTransaction().begin();
-        User existingUser = em.find(User.class,id);
-        if(existingUser == null){
-            throw new RuntimeException("User not found");
+            em.persist(user);
+
+            em.getTransaction().commit();
+//            em.getTransaction().rollback();
+//            em.detach(user);
+            return user;
         }
-        existingUser.setFirstname(user.getFirstname());
-        existingUser.setLastname(user.getLastname());
-        em.getTransaction().commit();
     }
 
-    public void delete(User user){
-        em.getTransaction().begin();
-        em.remove(user);
-        em.getTransaction().commit();
-    }
-
-    public void delete(Long id){
-        em.getTransaction().begin();
-        User existingUser = em.find(User.class,id);
-        if(existingUser == null){
-            throw new RuntimeException("User not found");
+    public User getOne(Long id) {
+        try (EntityManager em = openConnection()) {
+            return em.find(User.class, id);
         }
-        em.remove(existingUser);
-        em.getTransaction().commit();
+    }
+
+    public List<User> getAll() {
+        try (EntityManager em = openConnection()) {
+            TypedQuery<User> query = em.createQuery("select u from User u", User.class);
+            return query.getResultList();
+        }
+    }
+
+    public List<User> getUsersByFirstname(String firstname){
+        try(EntityManager em = openConnection()){
+            TypedQuery<User> query = em.createQuery("" +
+                    "select u " +
+                    "from User u " +
+                    "where u.firstname like :firstname", User.class);
+            query.setParameter("firstname","%" + firstname + "%");
+            return query.getResultList();
+        }
+    }
+
+    public void update(User user) {
+        try (EntityManager em = openConnection()) {
+            em.getTransaction().begin();
+            em.merge(user);
+            em.getTransaction().commit();
+        }
+    }
+
+    public void update(Long id, User user) {
+        try (EntityManager em = openConnection()) {
+            em.getTransaction().begin();
+            User existingUser = em.find(User.class, id);
+            if (existingUser == null) {
+                throw new RuntimeException("User not found");
+            }
+            existingUser.setFirstname(user.getFirstname());
+            existingUser.setLastname(user.getLastname());
+            em.getTransaction().commit();
+        }
+    }
+
+    public void delete(User user) {
+        try (EntityManager em = openConnection()) {
+            em.getTransaction().begin();
+            em.remove(user);
+            em.getTransaction().commit();
+        }
+    }
+
+    public void delete(Long id) {
+        try (EntityManager em = openConnection()) {
+            em.getTransaction().begin();
+            User existingUser = em.find(User.class, id);
+            if (existingUser == null) {
+                throw new RuntimeException("User not found");
+            }
+            em.remove(existingUser);
+            em.getTransaction().commit();
+        }
     }
 }
